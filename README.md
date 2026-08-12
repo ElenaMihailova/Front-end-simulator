@@ -2,17 +2,14 @@
 
 Личный HTML/CSS-тренажёр для короткой практики frontend-вёрстки. Это не готовая учебная база, а платформа: пользователь самостоятельно исследует источники, добавляет задачи как данные, пишет brief, reference notes и критерии, а затем проходит их для интервью-подготовки.
 
-На первом экране нет заранее собранной страницы: пользователь выбирает challenge из каталога или запускает `Random challenge`, после чего открывается отдельная рабочая сцена с brief, Monaco Editor и live preview.
+На первом экране нет заранее собранной страницы: пользователь выбирает challenge из каталога или запускает `Random challenge`, после чего открывается отдельная рабочая сцена.
 
 Проект намеренно не содержит теории, подсказок, проверки правильности, баллов, уровней или бэкенда.
 
-![Challenge workspace after selecting a task](docs/images/challenge-workspace-desktop.png)
-
 ## What it solves
 
-- Быстрый старт frontend interview drills без лишнего интерфейсного шума.
+- Быстрый старт frontend interview drills.
 - Практика разных типов задач: `build from scratch`, `fix layout`, `responsive`.
-- Git-friendly workflow: каждая новая задача добавляется вручную в data module, без бэкенда и CMS.
 - Task-specific drafts в `localStorage`, чтобы упражнения не конфликтовали между собой.
 - Безопасный preview пользовательского HTML/CSS в sandboxed iframe без выполнения JavaScript.
 
