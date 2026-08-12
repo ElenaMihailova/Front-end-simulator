@@ -1,35 +1,49 @@
-# Frontend Page Simulator
+# Frontend Challenge Simulator
 
-Интерактивный тренажёр для практики HTML и CSS на одной мини-странице. Проект сделан для чистой практики: без теории, подсказок, проверки правильности, баллов и бэкенда.
+Личный HTML/CSS-тренажёр для короткой практики frontend-вёрстки. Это не готовая учебная база, а платформа: пользователь самостоятельно исследует источники, добавляет задачи как данные, пишет brief, reference notes и критерии, а затем проходит их для интервью-подготовки.
 
-Пользователь выбирает блок страницы, пишет HTML/CSS и сразу видит результат в live preview.
+На первом экране нет заранее собранной страницы: пользователь выбирает challenge из каталога или запускает `Random challenge`, после чего открывается отдельная рабочая сцена с brief, Monaco Editor и live preview.
 
-![Главный интерфейс тренажёра](docs/images/simulator-live-preview.png)
+Проект намеренно не содержит теории, подсказок, проверки правильности, баллов, уровней или бэкенда.
 
-## Что решает
+![Challenge workspace after selecting a task](docs/images/challenge-workspace-desktop.png)
 
-Тренажёр помогает отрабатывать типовые фронтенд-задачи на небольших изолированных секциях страницы:
+## What it solves
 
-- шапка сайта;
-- hero-блок;
-- карточки;
-- форма;
-- футер.
+- Быстрый старт frontend interview drills без лишнего интерфейсного шума.
+- Практика разных типов задач: `build from scratch`, `fix layout`, `responsive`.
+- Git-friendly workflow: каждая новая задача добавляется вручную в data module, без бэкенда и CMS.
+- Task-specific drafts в `localStorage`, чтобы упражнения не конфликтовали между собой.
+- Безопасный preview пользовательского HTML/CSS в sandboxed iframe без выполнения JavaScript.
 
-Каждый блок можно редактировать отдельно, не отвлекаясь на оценку, автоматические подсказки или серверную часть.
+## Features
 
-## Возможности
+- `Choose a challenge` empty state вместо автоматической мини-страницы.
+- `Random challenge` и каталог стартовых задач.
+- `Block preview` с HTML/CSS Monaco Editor и живым iframe preview.
+- `Full page` и `Page map` показываются только для multi-section задач.
+- `Reset block` возвращает текущий блок к starter-коду.
+- `Saved locally` / `Saving...` отражают autosave без ручного save.
+- Legacy drafts migration из старых ключей `localStorage` в task-specific storage.
 
-- Карта страницы с выбором конкретного блока.
-- Режим фокуса для выбранного упражнения.
-- Monaco Editor для HTML и CSS.
-- Мгновенный live preview выбранного блока.
-- Sandboxed iframe для безопасного предпросмотра результата.
-- Режим Whole page для просмотра всей собранной страницы.
-- Автосохранение кода в localStorage.
-- Reset для возврата выбранного упражнения к стартовому шаблону.
+## Sample tasks
 
-## Стек
+В `src/data/tasks.ts` лежит минимальный технический seed/demo-набор, нужный для проверки flow:
+
+- `Responsive cards row` — responsive cards drill с готовым desktop-стартом.
+- `Header alignment` — flexbox header from scratch.
+- `Fix a layout overlap` — намеренно сломанный promo layout.
+- `Mini landing page sections` — multi-section sample для проверки `Page map`, `Full page` и legacy migration.
+
+Это examples, а не попытка собрать полноценный курс. Новые реальные задачи предполагается добавлять по одной после самостоятельного исследования источников.
+
+## Task data model
+
+Новые задачи добавляются как данные в `src/data/tasks.ts`: `id`, `title`, `prompt`, `topic`, `difficulty`, `type`, `sections`, starter HTML/CSS и optional fields `sourceUrl`, `referenceSolution`, `assertions`. Подробности для будущего наполнения лежат в `src/data/README.md`.
+
+Учебный HTML/CSS использует компонентный БЭМ: самостоятельные блоки (`header`, `hero`, `card`, `contact-form`, `footer`) и элементы вида `block__element`.
+
+## Stack
 
 - React
 - Vite
@@ -37,27 +51,34 @@
 - CSS Modules
 - Monaco Editor
 - Lucide React
-- iframe sandbox
+- iframe `sandbox`
 - React state
-- localStorage
+- `localStorage`
+- ESLint
+- Prettier
+- Vitest
 
-## Локальный запуск
+## Local run
 
 ```bash
 npm install
 npm run dev
 ```
 
-После запуска приложение будет доступно по адресу:
+Vite starts on:
 
 ```text
 http://127.0.0.1:5173/
 ```
 
-## Сборка
+## Checks
 
 ```bash
+npm run typecheck
+npm run lint
+npm run format:check
+npm run test
 npm run build
 ```
 
-Команда выполняет проверку TypeScript и собирает production-версию через Vite.
+`npm run build` runs TypeScript first and then creates the production Vite build.

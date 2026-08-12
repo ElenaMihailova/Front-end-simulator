@@ -1,299 +1,189 @@
-import { useEffect, useMemo, useState } from 'react';
-import Editor from '@monaco-editor/react';
-import {
-  Code2,
-  Eye,
-  FileCode2,
-  PanelLeft,
-  RotateCcw,
-  Rows3,
-  Save,
-} from 'lucide-react';
-import { exercises, getExercise, type PageBlockId } from './data/exercises';
-import {
-  createFocusDocument,
-  createPreviewDocument,
-  type DraftsById,
-} from './utils/preview';
+import { useMemo, useState } from 'react';
+import { ArrowLeft, Save } from 'lucide-react';
+import { ChallengeCatalog } from './components/ChallengeCatalog';
+import { ExerciseWorkspace } from './components/ExerciseWorkspace';
+import { ModeBar } from './components/ModeBar';
+import { PageMap } from './components/PageMap';
+import { PreviewFrame } from './components/PreviewFrame';
+import { getTask, tasks, type Task } from './data/tasks';
+import { useDraftStorage } from './hooks/useDraftStorage';
+import { createFocusDocument, createPreviewDocument } from './utils/preview';
+import type { EditorTab, WorkspaceView } from './types';
 import styles from './App.module.css';
 
-const storageKey = 'html-css-simulator-drafts-v1';
-
-type EditorTab = 'html' | 'css';
-type WorkspaceView = 'exercise' | 'wholePage';
-
-function createInitialDrafts(): DraftsById {
-  return exercises.reduce((drafts, exercise) => {
-    drafts[exercise.id] = {
-      html: exercise.starterHtml,
-      css: exercise.starterCss,
-    };
-    return drafts;
-  }, {} as DraftsById);
-}
-
-function readDrafts(): DraftsById {
-  const fallback = createInitialDrafts();
-
-  try {
-    const stored = window.localStorage.getItem(storageKey);
-    if (!stored) {
-      return fallback;
-    }
-
-    const parsed = JSON.parse(stored) as Partial<DraftsById>;
-    return exercises.reduce((drafts, exercise) => {
-      const storedDraft = parsed[exercise.id];
-      drafts[exercise.id] = {
-        html: storedDraft?.html ?? exercise.starterHtml,
-        css: storedDraft?.css ?? exercise.starterCss,
-      };
-      return drafts;
-    }, {} as DraftsById);
-  } catch {
-    return fallback;
-  }
-}
-
 export function App() {
-  const [drafts, setDrafts] = useState<DraftsById>(() => readDrafts());
-  const [selectedId, setSelectedId] = useState<PageBlockId>('hero');
+  const { drafts, saveStatus, setDrafts } = useDraftStorage();
+  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
+  const [selectedSectionId, setSelectedSectionId] = useState<string | null>(
+    null,
+  );
   const [editorTab, setEditorTab] = useState<EditorTab>('html');
   const [workspaceView, setWorkspaceView] = useState<WorkspaceView>('exercise');
-  const selectedExercise = getExercise(selectedId);
-  const selectedDraft = drafts[selectedId];
 
-  useEffect(() => {
-    window.localStorage.setItem(storageKey, JSON.stringify(drafts));
-  }, [drafts]);
-
-  const fullPreview = useMemo(() => createPreviewDocument(exercises, drafts), [drafts]);
-  const focusPreview = useMemo(
-    () => createFocusDocument(selectedExercise, selectedDraft),
-    [selectedDraft, selectedExercise],
+  const selectedTask = selectedTaskId ? getTask(selectedTaskId) : null;
+  const selectedSection =
+    selectedTask?.sections.find(
+      (section) => section.id === selectedSectionId,
+    ) ??
+    selectedTask?.sections[0] ??
+    null;
+  const selectedTaskDrafts = selectedTask ? drafts[selectedTask.id] : null;
+  const selectedDraft =
+    selectedTaskDrafts && selectedSection
+      ? selectedTaskDrafts[selectedSection.id]
+      : null;
+  const showPageMap = Boolean(selectedTask && selectedTask.sections.length > 1);
+  const showWholePage = Boolean(
+    selectedTask?.supportsWholePage && selectedTask.sections.length > 1,
   );
 
+  const fullPreview = useMemo(() => {
+    if (!selectedTask || !selectedTaskDrafts) {
+      return '';
+    }
+
+    return createPreviewDocument(selectedTask.sections, selectedTaskDrafts);
+  }, [selectedTask, selectedTaskDrafts]);
+
+  const focusPreview = useMemo(() => {
+    if (!selectedSection || !selectedDraft) {
+      return '';
+    }
+
+    return createFocusDocument(selectedSection, selectedDraft);
+  }, [selectedDraft, selectedSection]);
+
+  const selectTask = (task: Task) => {
+    setSelectedTaskId(task.id);
+    setSelectedSectionId(task.sections[0]?.id ?? null);
+    setEditorTab('html');
+    setWorkspaceView('exercise');
+  };
+
+  const selectRandomTask = () => {
+    const randomIndex = Math.floor(Math.random() * tasks.length);
+    selectTask(tasks[randomIndex]);
+  };
+
   const updateDraft = (field: EditorTab, value = '') => {
+    if (!selectedTask || !selectedSection) {
+      return;
+    }
+
     setDrafts((current) => ({
       ...current,
-      [selectedId]: {
-        ...current[selectedId],
-        [field]: value,
+      [selectedTask.id]: {
+        ...current[selectedTask.id],
+        [selectedSection.id]: {
+          ...current[selectedTask.id][selectedSection.id],
+          [field]: value,
+        },
       },
     }));
   };
 
   const resetSelected = () => {
+    if (!selectedTask || !selectedSection) {
+      return;
+    }
+
     setDrafts((current) => ({
       ...current,
-      [selectedId]: {
-        html: selectedExercise.starterHtml,
-        css: selectedExercise.starterCss,
+      [selectedTask.id]: {
+        ...current[selectedTask.id],
+        [selectedSection.id]: {
+          html: selectedSection.starterHtml,
+          css: selectedSection.starterCss,
+        },
       },
     }));
   };
+
+  const selectSection = (id: string) => {
+    setSelectedSectionId(id);
+    setEditorTab('html');
+    setWorkspaceView('exercise');
+  };
+
+  if (!selectedTask || !selectedSection || !selectedDraft) {
+    return (
+      <div className={styles.simulator}>
+        <ChallengeCatalog
+          tasks={tasks}
+          onRandomSelect={selectRandomTask}
+          onSelect={selectTask}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className={styles.simulator}>
       <header className={styles['simulator__header']}>
         <div>
           <p className={styles['simulator__eyebrow']}>HTML/CSS practice</p>
-          <h1 className={styles['simulator__title']}>Frontend page simulator</h1>
+          <h1 className={styles['simulator__title']}>
+            Frontend page simulator
+          </h1>
         </div>
-        <div className={styles['simulator__status']}>
-          <Save aria-hidden="true" size={16} />
-          Local autosave
+        <div className={styles['simulator__header-actions']}>
+          <button
+            className={styles['simulator__back']}
+            onClick={() => setSelectedTaskId(null)}
+            type="button"
+          >
+            <ArrowLeft aria-hidden="true" size={16} />
+            Choose another
+          </button>
+          <div className={styles['simulator__status']} aria-live="polite">
+            <Save aria-hidden="true" size={16} />
+            {saveStatus}
+          </div>
         </div>
       </header>
 
-      <main className={styles['simulator__workspace']}>
-        <aside className={styles['simulator__map']} aria-label="Mini page map">
-          <div className={styles['simulator__panel-header']}>
-            <PanelLeft aria-hidden="true" size={18} />
-            <span>Page map</span>
-          </div>
-
-          <div className={styles['simulator__map-list']}>
-            {exercises.map((exercise) => {
-              const Icon = exercise.icon;
-              const active = exercise.id === selectedId;
-
-              return (
-                <button
-                  className={`${styles['simulator__map-item']} ${
-                    styles[`simulator__map-item--${exercise.id}`]
-                  } ${active ? styles['simulator__map-item--active'] : ''}`}
-                  key={exercise.id}
-                  type="button"
-                  onClick={() => {
-                    setSelectedId(exercise.id);
-                    setEditorTab('html');
-                    setWorkspaceView('exercise');
-                  }}
-                >
-                  <span className={styles['simulator__map-icon']}>
-                    <Icon aria-hidden="true" size={17} />
-                  </span>
-                  <span className={styles['simulator__map-copy']}>
-                    <strong className={styles['simulator__map-title']}>{exercise.title}</strong>
-                    <small className={styles['simulator__map-description']}>
-                      {exercise.scope}
-                    </small>
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-        </aside>
+      <main
+        className={`${styles['simulator__workspace']} ${
+          showPageMap ? '' : styles['simulator__workspace--single']
+        }`}
+      >
+        {showPageMap && (
+          <PageMap
+            sections={selectedTask.sections}
+            selectedId={selectedSection.id}
+            onSelect={selectSection}
+          />
+        )}
 
         <div className={styles['simulator__work-area']}>
-          <div className={styles['simulator__mode-bar']}>
-            <div className={styles['simulator__panel-header']}>
-              <Rows3 aria-hidden="true" size={18} />
-              <span>Workspace view</span>
-            </div>
-            <div className={styles['simulator__mode-actions']}>
-              <div
-                className={styles['simulator__view-tabs']}
-                role="tablist"
-                aria-label="Workspace view"
-              >
-                <button
-                  aria-selected={workspaceView === 'exercise'}
-                  className={
-                    workspaceView === 'exercise'
-                      ? styles['simulator__view-tab--selected']
-                      : ''
-                  }
-                  onClick={() => setWorkspaceView('exercise')}
-                  role="tab"
-                  type="button"
-                >
-                  <Eye aria-hidden="true" size={16} />
-                  Live preview
-                </button>
-                <button
-                  aria-selected={workspaceView === 'wholePage'}
-                  className={
-                    workspaceView === 'wholePage'
-                      ? styles['simulator__view-tab--selected']
-                      : ''
-                  }
-                  onClick={() => setWorkspaceView('wholePage')}
-                  role="tab"
-                  type="button"
-                >
-                  <Rows3 aria-hidden="true" size={16} />
-                  Whole page
-                </button>
-              </div>
-              <button className={styles['simulator__reset']} type="button" onClick={resetSelected}>
-                <RotateCcw aria-hidden="true" size={16} />
-                Reset
-              </button>
-            </div>
-          </div>
+          <ModeBar
+            workspaceView={workspaceView}
+            showWholePage={showWholePage}
+            onWorkspaceViewChange={setWorkspaceView}
+            onReset={resetSelected}
+          />
 
-          {workspaceView === 'exercise' ? (
-            <section className={styles['simulator__exercise']} aria-label="Focused exercise">
-              <div className={styles['simulator__exercise-header']}>
-                <div>
-                  <p className={styles['simulator__exercise-eyebrow']}>
-                    {selectedExercise.eyebrow}
-                  </p>
-                  <h2 className={styles['simulator__exercise-title']}>
-                    {selectedExercise.title}
-                  </h2>
-                  <span className={styles['simulator__exercise-scope']}>
-                    {selectedExercise.scope}
-                  </span>
-                </div>
-              </div>
-
-              <div className={styles['simulator__exercise-grid']}>
-                <div className={styles['simulator__editor']}>
-                  <div className={styles['simulator__editor-toolbar']}>
-                    <div
-                      className={styles['simulator__editor-tabs']}
-                      role="tablist"
-                      aria-label="Editor language"
-                    >
-                      <button
-                        aria-selected={editorTab === 'html'}
-                        className={
-                          editorTab === 'html'
-                            ? styles['simulator__editor-tab--selected']
-                            : ''
-                        }
-                        onClick={() => setEditorTab('html')}
-                        role="tab"
-                        type="button"
-                      >
-                        <FileCode2 aria-hidden="true" size={16} />
-                        HTML
-                      </button>
-                      <button
-                        aria-selected={editorTab === 'css'}
-                        className={
-                          editorTab === 'css'
-                            ? styles['simulator__editor-tab--selected']
-                            : ''
-                        }
-                        onClick={() => setEditorTab('css')}
-                        role="tab"
-                        type="button"
-                      >
-                        <Code2 aria-hidden="true" size={16} />
-                        CSS
-                      </button>
-                    </div>
-                  </div>
-
-                  <Editor
-                    className={styles['simulator__code-editor']}
-                    height="100%"
-                    language={editorTab}
-                    onChange={(value) => updateDraft(editorTab, value)}
-                    options={{
-                      automaticLayout: true,
-                      fontFamily:
-                        'JetBrains Mono, SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace',
-                      fontSize: 14,
-                      lineHeight: 22,
-                      minimap: { enabled: false },
-                      padding: { top: 18 },
-                      scrollBeyondLastLine: false,
-                      tabSize: 2,
-                      wordWrap: 'on',
-                    }}
-                    theme="vs-dark"
-                    value={selectedDraft[editorTab]}
-                  />
-                </div>
-
-                <div className={styles['simulator__preview']}>
-                  <div className={styles['simulator__preview-toolbar']}>
-                    <Eye aria-hidden="true" size={17} />
-                    <span>Live preview</span>
-                  </div>
-                  <iframe
-                    className={styles['simulator__preview-frame']}
-                    sandbox=""
-                    srcDoc={focusPreview}
-                    title={`${selectedExercise.title} preview`}
-                  />
-                </div>
-              </div>
-            </section>
-          ) : (
-            <section className={styles['simulator__whole-page']} aria-label="Whole page preview">
-              <iframe
+          {workspaceView === 'wholePage' && showWholePage ? (
+            <section
+              className={styles['simulator__whole-page']}
+              aria-label="Whole page preview"
+            >
+              <PreviewFrame
                 className={styles['simulator__whole-page-frame']}
-                sandbox=""
-                srcDoc={fullPreview}
-                title="Full mini page preview"
+                document={fullPreview}
+                title="Full page preview"
               />
             </section>
+          ) : (
+            <ExerciseWorkspace
+              draft={selectedDraft}
+              editorTab={editorTab}
+              previewDocument={focusPreview}
+              section={selectedSection}
+              task={selectedTask}
+              onDraftChange={updateDraft}
+              onEditorTabChange={setEditorTab}
+            />
           )}
         </div>
       </main>

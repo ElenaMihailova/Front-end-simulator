@@ -1,6 +1,5 @@
 import {
   CreditCard,
-  FileText,
   Footprints,
   LayoutTemplate,
   Mail,
@@ -25,18 +24,18 @@ export const exercises: Exercise[] = [
     id: 'header',
     title: 'Header',
     eyebrow: 'navigation',
-    scope: 'Logo, nav links, primary action',
+    scope: 'Logo, links, primary action',
     icon: LayoutTemplate,
-    starterHtml: `<header class="site-header">
-  <a class="brand" href="#">Studio</a>
-  <nav class="nav" aria-label="Main navigation">
-    <a href="#">Work</a>
-    <a href="#">Services</a>
-    <a href="#">Contact</a>
-  </nav>
-  <button class="header-button">Start</button>
+    starterHtml: `<header class="header">
+  <strong class="header__brand">Studio</strong>
+  <div class="header__nav" role="group" aria-label="Demo sections">
+    <button class="header__nav-link header__nav-link--active" type="button">Work</button>
+    <button class="header__nav-link" type="button">Services</button>
+    <button class="header__nav-link" type="button">Contact</button>
+  </div>
+  <button class="header__button">Start</button>
 </header>`,
-    starterCss: `.site-header {
+    starterCss: `.header {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -46,23 +45,30 @@ export const exercises: Exercise[] = [
   border-bottom: 1px solid #d9dee8;
 }
 
-.brand {
+.header__brand {
   color: #101828;
   font-weight: 800;
-  text-decoration: none;
 }
 
-.nav {
+.header__nav {
   display: flex;
   gap: 18px;
 }
 
-.nav a {
+.header__nav-link {
+  border: 0;
+  padding: 0;
+  background: transparent;
   color: #536179;
-  text-decoration: none;
+  cursor: pointer;
 }
 
-.header-button {
+.header__nav-link--active {
+  color: #174ea6;
+  font-weight: 800;
+}
+
+.header__button {
   border: 0;
   padding: 10px 16px;
   background: #174ea6;
@@ -77,16 +83,16 @@ export const exercises: Exercise[] = [
     scope: 'Headline, copy, CTA, visual area',
     icon: MousePointer2,
     starterHtml: `<section class="hero">
-  <div class="hero-copy">
-    <p class="kicker">Digital product studio</p>
-    <h1>Build sharper interfaces for real users.</h1>
-    <p class="lead">A compact landing block with direct copy and a focused call to action.</p>
-    <a class="hero-action" href="#">View portfolio</a>
+  <div class="hero__content">
+    <p class="hero__kicker">Digital product studio</p>
+    <h1 class="hero__title">Build sharper interfaces for real users.</h1>
+    <p class="hero__lead">A compact landing block with direct copy and a focused call to action.</p>
+    <button class="hero__action" type="button">View portfolio</button>
   </div>
-  <div class="hero-panel" aria-hidden="true">
-    <span></span>
-    <span></span>
-    <span></span>
+  <div class="hero__visual" aria-hidden="true">
+    <span class="hero__visual-row"></span>
+    <span class="hero__visual-row"></span>
+    <span class="hero__visual-row"></span>
   </div>
 </section>`,
     starterCss: `.hero {
@@ -99,7 +105,7 @@ export const exercises: Exercise[] = [
   background: #edf6f4;
 }
 
-.kicker {
+.hero__kicker {
   margin: 0 0 12px;
   color: #087f5b;
   font-size: 13px;
@@ -107,7 +113,7 @@ export const exercises: Exercise[] = [
   text-transform: uppercase;
 }
 
-h1 {
+.hero__title {
   max-width: 660px;
   margin: 0;
   color: #172033;
@@ -115,27 +121,28 @@ h1 {
   line-height: 1;
 }
 
-.lead {
+.hero__lead {
   max-width: 520px;
   color: #4f5f73;
   font-size: 18px;
   line-height: 1.6;
 }
 
-.hero-action {
+.hero__action {
   display: inline-flex;
+  border: 0;
   padding: 13px 18px;
   background: #087f5b;
   color: #ffffff;
-  text-decoration: none;
+  cursor: pointer;
 }
 
-.hero-panel {
+.hero__visual {
   display: grid;
   gap: 14px;
 }
 
-.hero-panel span {
+.hero__visual-row {
   min-height: 82px;
   background: #ffffff;
   border: 1px solid #cce3de;
@@ -147,24 +154,24 @@ h1 {
     eyebrow: 'content grid',
     scope: 'Three service cards',
     icon: CreditCard,
-    starterHtml: `<section class="cards-section">
-  <article class="card">
-    <p>01</p>
-    <h2>Interface audit</h2>
-    <span>Find friction in current user flows.</span>
+    starterHtml: `<section class="cards">
+  <article class="card card--audit">
+    <p class="card__number">01</p>
+    <h2 class="card__title">Interface audit</h2>
+    <span class="card__text">Find friction in current user flows.</span>
   </article>
-  <article class="card">
-    <p>02</p>
-    <h2>Design system</h2>
-    <span>Create repeatable UI patterns.</span>
+  <article class="card card--system">
+    <p class="card__number">02</p>
+    <h2 class="card__title">Design system</h2>
+    <span class="card__text">Create repeatable UI patterns.</span>
   </article>
-  <article class="card">
-    <p>03</p>
-    <h2>Frontend build</h2>
-    <span>Ship responsive production screens.</span>
+  <article class="card card--build">
+    <p class="card__number">03</p>
+    <h2 class="card__title">Frontend build</h2>
+    <span class="card__text">Ship responsive production screens.</span>
   </article>
 </section>`,
-    starterCss: `.cards-section {
+    starterCss: `.cards {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 18px;
@@ -179,19 +186,19 @@ h1 {
   border: 1px solid #dbe3ee;
 }
 
-.card p {
+.card__number {
   margin: 0 0 42px;
   color: #b42318;
   font-weight: 800;
 }
 
-.card h2 {
+.card__title {
   margin: 0 0 10px;
   color: #182230;
   font-size: 22px;
 }
 
-.card span {
+.card__text {
   color: #526071;
   line-height: 1.45;
 }`,
@@ -199,24 +206,24 @@ h1 {
   {
     id: 'form',
     title: 'Form',
-    eyebrow: 'lead capture',
+    eyebrow: 'contact block',
     scope: 'Fields, textarea, submit action',
     icon: Mail,
     starterHtml: `<section class="contact">
-  <div>
-    <p class="label">Project request</p>
-    <h2>Tell us what needs to change.</h2>
+  <div class="contact__content">
+    <p class="contact__label">Project request</p>
+    <h2 class="contact__title">Tell us what needs to change.</h2>
   </div>
   <form class="contact-form">
-    <label>
+    <label class="contact-form__field">
       Name
-      <input type="text" placeholder="Alex Morgan" />
+      <input class="contact-form__input" type="text" placeholder="Alex Morgan" />
     </label>
-    <label>
+    <label class="contact-form__field">
       Message
-      <textarea placeholder="Short project brief"></textarea>
+      <textarea class="contact-form__textarea" placeholder="Short project brief"></textarea>
     </label>
-    <button type="button">Send request</button>
+    <button class="contact-form__button" type="button">Send request</button>
   </form>
 </section>`,
     starterCss: `.contact {
@@ -227,7 +234,7 @@ h1 {
   background: #f6f7f9;
 }
 
-.label {
+.contact__label {
   margin: 0 0 10px;
   color: #9a3412;
   font-size: 13px;
@@ -235,7 +242,7 @@ h1 {
   text-transform: uppercase;
 }
 
-.contact h2 {
+.contact__title {
   margin: 0;
   color: #172033;
   font-size: 34px;
@@ -247,15 +254,15 @@ h1 {
   gap: 14px;
 }
 
-label {
+.contact-form__field {
   display: grid;
   gap: 8px;
   color: #344054;
   font-weight: 700;
 }
 
-input,
-textarea {
+.contact-form__input,
+.contact-form__textarea {
   width: 100%;
   box-sizing: border-box;
   border: 1px solid #cbd5e1;
@@ -263,11 +270,11 @@ textarea {
   font: inherit;
 }
 
-textarea {
+.contact-form__textarea {
   min-height: 110px;
 }
 
-button {
+.contact-form__button {
   justify-self: start;
   border: 0;
   padding: 12px 18px;
@@ -279,19 +286,19 @@ button {
   {
     id: 'footer',
     title: 'Footer',
-    eyebrow: 'closing',
-    scope: 'Brand, links, legal row',
+    eyebrow: 'page ending',
+    scope: 'Brand, links, utility row',
     icon: Footprints,
     starterHtml: `<footer class="footer">
-  <div>
-    <strong>Studio</strong>
-    <p>Focused digital product work.</p>
+  <div class="footer__content">
+    <strong class="footer__brand">Studio</strong>
+    <p class="footer__text">Focused digital product work.</p>
   </div>
-  <nav aria-label="Footer navigation">
-    <a href="#">Privacy</a>
-    <a href="#">Terms</a>
-    <a href="#">LinkedIn</a>
-  </nav>
+  <div class="footer__nav" role="group" aria-label="Utility links">
+    <button class="footer__nav-link" type="button">Privacy</button>
+    <button class="footer__nav-link" type="button">Terms</button>
+    <button class="footer__nav-link" type="button">LinkedIn</button>
+  </div>
 </footer>`,
     starterCss: `.footer {
   display: flex;
@@ -303,23 +310,26 @@ button {
   color: #ffffff;
 }
 
-.footer strong {
+.footer__brand {
   font-size: 22px;
 }
 
-.footer p {
+.footer__text {
   margin: 8px 0 0;
   color: #c5cfdb;
 }
 
-.footer nav {
+.footer__nav {
   display: flex;
   gap: 16px;
 }
 
-.footer a {
+.footer__nav-link {
+  border: 0;
+  padding: 0;
+  background: transparent;
   color: #e8edf5;
-  text-decoration: none;
+  cursor: pointer;
 }`,
   },
 ];

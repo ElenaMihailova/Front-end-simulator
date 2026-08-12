@@ -1,11 +1,5 @@
-import type { Exercise, PageBlockId } from '../data/exercises';
-
-export type ExerciseDraft = {
-  html: string;
-  css: string;
-};
-
-export type DraftsById = Record<PageBlockId, ExerciseDraft>;
+import type { TaskSection } from '../data/tasks';
+import type { ExerciseDraft, SectionDraftsById } from '../types';
 
 const baseStyles = `
   :root {
@@ -63,21 +57,35 @@ const baseStyles = `
   }
 `;
 
-export function createPreviewDocument(exercises: Exercise[], drafts: DraftsById) {
-  const css = exercises.map((exercise) => drafts[exercise.id].css).join('\n\n');
-  const html = exercises
-    .map((exercise) => {
-      const value = drafts[exercise.id].html.trim();
-      return value || `<section class="placeholder">${exercise.title}</section>`;
+export function createPreviewDocument(
+  sections: TaskSection[],
+  drafts: SectionDraftsById,
+) {
+  const css = sections.map((section) => drafts[section.id].css).join('\n\n');
+  const html = sections
+    .map((section) => {
+      const value = drafts[section.id].html.trim();
+      return value || `<section class="placeholder">${section.title}</section>`;
     })
     .join('\n');
 
-  return createDocument(`${baseStyles}\n${css}`, `<main class="preview-page">${html}</main>`);
+  return createDocument(
+    `${baseStyles}\n${css}`,
+    `<main class="preview-page">${html}</main>`,
+  );
 }
 
-export function createFocusDocument(exercise: Exercise, draft: ExerciseDraft) {
-  const html = draft.html.trim() || `<section class="placeholder">${exercise.title}</section>`;
-  return createDocument(`${baseStyles}\n${draft.css}`, `<main class="preview-page">${html}</main>`);
+export function createFocusDocument(
+  section: TaskSection,
+  draft: ExerciseDraft,
+) {
+  const html =
+    draft.html.trim() ||
+    `<section class="placeholder">${section.title}</section>`;
+  return createDocument(
+    `${baseStyles}\n${draft.css}`,
+    `<main class="preview-page">${html}</main>`,
+  );
 }
 
 function createDocument(css: string, body: string) {
