@@ -1,0 +1,445 @@
+.simulator {
+  min-height: 100vh;
+  padding: 22px;
+  background:
+    linear-gradient(180deg, rgba(251, 252, 255, 0.9), rgba(235, 239, 245, 0.94)),
+    #edf1f7;
+  color: #172033;
+}
+
+.simulator__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  max-width: 1480px;
+  margin: 0 auto 18px;
+}
+
+.simulator__title {
+  margin: 0;
+  font-size: clamp(28px, 4vw, 46px);
+  line-height: 1;
+}
+
+.simulator__eyebrow {
+  margin: 0 0 8px;
+  color: #0f766e;
+  font-size: 13px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.simulator__status {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 38px;
+  padding: 0 14px;
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  color: #475467;
+  font-size: 14px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.simulator__workspace {
+  display: grid;
+  grid-template-columns: minmax(300px, 360px) minmax(0, 1fr);
+  gap: 18px;
+  max-width: 1480px;
+  margin: 0 auto;
+}
+
+.simulator__map,
+.simulator__mode-bar,
+.simulator__exercise,
+.simulator__whole-page {
+  min-width: 0;
+  border: 1px solid #cfd8e6;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 18px 55px rgba(23, 32, 51, 0.08);
+}
+
+.simulator__map {
+  display: grid;
+  grid-template-rows: auto auto;
+  align-content: start;
+  gap: 14px;
+  min-height: calc(100vh - 118px);
+  padding: 16px;
+}
+
+.simulator__panel-header,
+.simulator__preview-toolbar,
+.simulator__editor-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-height: 42px;
+  color: #344054;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.simulator__map-list {
+  display: grid;
+  gap: 10px;
+}
+
+.simulator__map-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 72px;
+  border: 1px solid #d7deea;
+  padding: 13px;
+  background: #ffffff;
+  color: #172033;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease;
+}
+
+.simulator__map-item:hover {
+  border-color: #8ea0b8;
+  transform: translateY(-1px);
+}
+
+.simulator__map-copy {
+  display: block;
+}
+
+.simulator__map-title,
+.simulator__map-description {
+  display: block;
+}
+
+.simulator__map-title {
+  margin-bottom: 4px;
+  font-size: 15px;
+}
+
+.simulator__map-description {
+  color: #667085;
+  line-height: 1.35;
+}
+
+.simulator__map-icon {
+  display: grid;
+  flex: 0 0 36px;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  background: #edf6f4;
+  color: #0f766e;
+}
+
+.simulator__map-item--active {
+  border-color: #0f766e;
+  box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.12);
+}
+
+.simulator__map-item--header {
+  border-left: 5px solid #2563eb;
+}
+
+.simulator__map-item--hero {
+  border-left: 5px solid #0f766e;
+}
+
+.simulator__map-item--cards {
+  border-left: 5px solid #c2410c;
+}
+
+.simulator__map-item--form {
+  border-left: 5px solid #7c3aed;
+}
+
+.simulator__map-item--footer {
+  border-left: 5px solid #334155;
+}
+
+.simulator__work-area {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 10px;
+  min-width: 0;
+  min-height: calc(100vh - 118px);
+}
+
+.simulator__mode-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  min-height: 62px;
+  padding: 10px 12px 10px 16px;
+}
+
+.simulator__mode-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.simulator__view-tabs {
+  display: inline-grid;
+  grid-template-columns: repeat(2, minmax(126px, 1fr));
+  gap: 6px;
+  min-width: 274px;
+  padding: 4px;
+  border: 1px solid #d7deea;
+  background: #f8fafc;
+}
+
+.simulator__view-tabs button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 34px;
+  border: 1px solid transparent;
+  padding: 0 10px;
+  background: transparent;
+  color: #475467;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.simulator__view-tabs button:hover,
+.simulator__view-tabs .simulator__view-tab--selected {
+  border-color: #cbd5e1;
+  background: #ffffff;
+  color: #0f766e;
+  box-shadow: 0 5px 14px rgba(23, 32, 51, 0.08);
+}
+
+.simulator__reset {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 38px;
+  border: 1px solid #cbd5e1;
+  padding: 0 13px;
+  background: #ffffff;
+  color: #344054;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.simulator__reset:hover {
+  border-color: #8ea0b8;
+}
+
+.simulator__exercise {
+  position: relative;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  min-height: 0;
+  overflow: hidden;
+}
+
+.simulator__exercise-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 18px 20px;
+  border-bottom: 1px solid #d7deea;
+}
+
+.simulator__exercise-eyebrow,
+.simulator__exercise-title,
+.simulator__exercise-scope {
+  margin: 0;
+}
+
+.simulator__exercise-eyebrow {
+  margin-bottom: 5px;
+  color: #0f766e;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.simulator__exercise-title {
+  font-size: 26px;
+  line-height: 1.12;
+}
+
+.simulator__exercise-scope {
+  display: block;
+  margin-top: 5px;
+  color: #667085;
+  font-size: 14px;
+}
+
+.simulator__exercise-grid {
+  display: grid;
+  grid-row: 2;
+  grid-column: 1;
+  grid-template-columns: minmax(360px, 0.95fr) minmax(360px, 1.05fr);
+  min-height: 0;
+}
+
+.simulator__editor,
+.simulator__preview {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  min-width: 0;
+  min-height: 0;
+}
+
+.simulator__editor {
+  border-right: 1px solid #d7deea;
+  background: #111827;
+}
+
+.simulator__editor-toolbar {
+  justify-content: space-between;
+  padding: 10px;
+  background: #0f172a;
+  color: #cbd5e1;
+}
+
+.simulator__editor-tabs {
+  display: inline-grid;
+  grid-template-columns: repeat(2, minmax(92px, 1fr));
+  gap: 6px;
+}
+
+.simulator__editor-tabs button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 34px;
+  border: 1px solid #263244;
+  padding: 0 11px;
+  background: #111827;
+  color: #cbd5e1;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.simulator__editor-tabs button:hover,
+.simulator__editor-tabs .simulator__editor-tab--selected {
+  border-color: #5eead4;
+  background: #173331;
+  color: #ffffff;
+}
+
+.simulator__code-editor {
+  min-height: 0;
+}
+
+.simulator__preview {
+  background: #f8fafc;
+}
+
+.simulator__preview-toolbar {
+  padding: 10px 14px;
+  border-bottom: 1px solid #d7deea;
+  background: #ffffff;
+}
+
+.simulator__preview-frame {
+  width: 100%;
+  height: 100%;
+  min-height: 520px;
+  border: 0;
+  background: #eef2f6;
+}
+
+.simulator__whole-page {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr);
+  min-height: 0;
+  overflow: hidden;
+  background: #eef2f6;
+}
+
+.simulator__whole-page-frame {
+  width: 100%;
+  height: 100%;
+  min-height: 620px;
+  border: 0;
+  background: #eef2f6;
+}
+
+@media (max-width: 1120px) {
+  .simulator__workspace {
+    grid-template-columns: 1fr;
+  }
+
+  .simulator__map,
+  .simulator__work-area,
+  .simulator__exercise {
+    min-height: auto;
+  }
+}
+
+@media (max-width: 820px) {
+  .simulator {
+    padding: 14px;
+  }
+
+  .simulator__header,
+  .simulator__mode-bar,
+  .simulator__exercise-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .simulator__mode-actions {
+    width: 100%;
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .simulator__view-tabs {
+    width: 100%;
+  }
+
+  .simulator__exercise-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .simulator__editor {
+    min-height: 480px;
+    border-right: 0;
+    border-bottom: 1px solid #d7deea;
+  }
+
+  .simulator__preview-frame {
+    min-height: 440px;
+  }
+}
+
+@media (max-width: 560px) {
+  .simulator__map-item {
+    min-height: 82px;
+  }
+
+  .simulator__editor-tabs {
+    width: 100%;
+  }
+
+  .simulator__reset,
+  .simulator__status {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .simulator__view-tabs {
+    grid-template-columns: 1fr;
+    min-width: 0;
+  }
+}
