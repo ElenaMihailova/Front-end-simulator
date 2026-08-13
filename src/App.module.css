@@ -662,20 +662,90 @@
 }
 
 .simulator__preview {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  min-width: 0;
+  min-height: 0;
   background: #ffffff;
 }
 
 .simulator__preview-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
   min-height: 36px;
   padding: 0 12px;
   border-bottom: 1px solid #d7deea;
   background: #ffffff;
 }
 
-.simulator__preview-frame {
+.simulator__preview-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  color: #344054;
+  font-size: 14px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.simulator__viewport-label {
+  color: #667085;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.simulator__viewport-switcher {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px;
+  border: 1px solid #d7deea;
+  background: #f8fafc;
+}
+
+.simulator__viewport-switcher button {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 26px;
+  border: 1px solid transparent;
+  padding: 0 7px;
+  background: transparent;
+  color: #667085;
+  font-size: 11px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.simulator__viewport-switcher button:hover,
+.simulator__viewport-switcher .simulator__viewport-button--selected {
+  border-color: #cbd5e1;
+  background: #ffffff;
+  color: #0f766e;
+}
+
+.simulator__viewport {
+  display: grid;
+  align-items: start;
+  justify-self: center;
+  justify-items: center;
   width: 100%;
-  height: 100%;
+  min-width: 0;
   min-height: 560px;
+  overflow: auto;
+  background: #ffffff;
+}
+
+.simulator__viewport-canvas {
+  position: relative;
+  height: 560px;
+  overflow: hidden;
+}
+
+.simulator__preview-frame {
+  display: block;
   border: 0;
   background: #ffffff;
 }

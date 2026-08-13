@@ -1,6 +1,14 @@
 import Editor from '@monaco-editor/react';
 import type { editor } from 'monaco-editor';
-import { Code2, Eye, FileCode2 } from 'lucide-react';
+import {
+  Code2,
+  Eye,
+  FileCode2,
+  Monitor,
+  Smartphone,
+  Tablet,
+} from 'lucide-react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import type { Task, TaskSection } from '../data/tasks';
 import type { EditorTab, ExerciseDraft } from '../types';
 import { PreviewFrame } from './PreviewFrame';
@@ -31,6 +39,10 @@ export function ExerciseWorkspace({
   onDraftChange,
   onEditorTabChange,
 }: ExerciseWorkspaceProps) {
+  const [previewViewport, setPreviewViewport] =
+    useState<PreviewViewport>('desktop');
+  const previewViewportRef = useRef<HTMLDivElement>(null);
+  const [previewPaneWidth, setPreviewPaneWidth] = useState(0);
   const isCurrentEditorReadOnly = !isSectionTabEditable(section, editorTab);
   const usesCssOnlyLayout = isCssOnlySection(section);
   const hasDetailedBrief =
@@ -38,6 +50,22 @@ export function ExerciseWorkspace({
     task.doneWhen?.length ||
     task.interviewFollowUp ||
     section.scope;
+
+  useEffect(() => {
+    const element = previewViewportRef.current;
+
+    if (!element) {
+      return;
+    }
+
+    const updateWidth = () => setPreviewPaneWidth(element.clientWidth);
+    updateWidth();
+
+    const observer = new ResizeObserver(updateWidth);
+    observer.observe(element);
+
+    return () => observer.disconnect();
+  }, []);
 
   return (
     <section
@@ -173,17 +201,127 @@ export function ExerciseWorkspace({
 
         <div className={styles['simulator__preview']}>
           <div className={styles['simulator__preview-toolbar']}>
-            <Eye aria-hidden="true" size={17} />
-            <span>Live preview</span>
+            <div className={styles['simulator__preview-title']}>
+              <Eye aria-hidden="true" size={17} />
+              <span>Live preview</span>
+              <span className={styles['simulator__viewport-label']}>
+                {previewViewportWidths[previewViewport]}px · fit
+              </span>
+            </div>
+            <div
+              className={styles['simulator__viewport-switcher']}
+              role="group"
+              aria-label="Preview viewport"
+            >
+              <ViewportButton
+                icon={<Monitor aria-hidden="true" size={15} />}
+                label="Desktop"
+                selected={previewViewport === 'desktop'}
+                onClick={() => setPreviewViewport('desktop')}
+              />
+              <ViewportButton
+                icon={<Tablet aria-hidden="true" size={15} />}
+                label="Tablet"
+                selected={previewViewport === 'tablet'}
+                onClick={() => setPreviewViewport('tablet')}
+              />
+              <ViewportButton
+                icon={<Smartphone aria-hidden="true" size={15} />}
+                label="Mobile"
+                selected={previewViewport === 'mobile'}
+                onClick={() => setPreviewViewport('mobile')}
+              />
+            </div>
           </div>
-          <PreviewFrame
-            className={styles['simulator__preview-frame']}
-            document={previewDocument}
-            title={`Preview: ${section.title}`}
-          />
+          <div
+            ref={previewViewportRef}
+            className={`${styles['simulator__viewport']} ${
+              styles[`simulator__viewport--${previewViewport}`]
+            }`}
+          >
+            <ScaledPreview
+              document={previewDocument}
+              paneWidth={previewPaneWidth}
+              title={`Preview: ${section.title}`}
+              viewport={previewViewport}
+            />
+          </div>
         </div>
       </div>
     </section>
+  );
+}
+
+type PreviewViewport = 'desktop' | 'tablet' | 'mobile';
+
+const previewViewportWidths: Record<PreviewViewport, number> = {
+  desktop: 1200,
+  tablet: 768,
+  mobile: 375,
+};
+
+const previewHeight = 560;
+
+type ScaledPreviewProps = {
+  document: string;
+  paneWidth: number;
+  title: string;
+  viewport: PreviewViewport;
+};
+
+function ScaledPreview({
+  document,
+  paneWidth,
+  title,
+  viewport,
+}: ScaledPreviewProps) {
+  const width = previewViewportWidths[viewport];
+  const scale = Math.min(1, Math.max(0, (paneWidth - 16) / width));
+  const visibleWidth = width * scale;
+
+  return (
+    <div
+      className={styles['simulator__viewport-canvas']}
+      style={{ width: `${visibleWidth}px` }}
+    >
+      <PreviewFrame
+        className={styles['simulator__preview-frame']}
+        document={document}
+        style={{
+          height: `${previewHeight / Math.max(scale, 0.01)}px`,
+          transform: `scale(${scale})`,
+          transformOrigin: 'top left',
+          width: `${width}px`,
+        }}
+        title={title}
+      />
+    </div>
+  );
+}
+
+type ViewportButtonProps = {
+  icon: ReactNode;
+  label: string;
+  selected: boolean;
+  onClick: () => void;
+};
+
+function ViewportButton({
+  icon,
+  label,
+  selected,
+  onClick,
+}: ViewportButtonProps) {
+  return (
+    <button
+      aria-pressed={selected}
+      className={selected ? styles['simulator__viewport-button--selected'] : ''}
+      onClick={onClick}
+      type="button"
+    >
+      {icon}
+      <span>{label}</span>
+    </button>
   );
 }
 

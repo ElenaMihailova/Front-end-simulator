@@ -28,10 +28,9 @@ const baseStyles = `
   }
 
   .preview-page {
-    width: min(100%, 980px);
-    margin: 0 auto;
+    width: 100%;
+    margin: 0;
     background: #ffffff;
-    box-shadow: 0 24px 70px rgba(23, 32, 51, 0.12);
   }
 
   .preview-page:empty {
