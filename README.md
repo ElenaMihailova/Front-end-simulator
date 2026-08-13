@@ -23,16 +23,17 @@
 - `Saved locally` / `Saving...` отражают autosave без ручного save.
 - Legacy drafts migration из старых ключей `localStorage` в task-specific storage.
 
-## Sample tasks
+## Tasks
 
-В `src/data/tasks.ts` лежит минимальный технический seed/demo-набор, нужный для проверки flow:
+В `src/data/tasks.ts` лежит каталог задач. Сейчас в нём есть первая реальная practice task и минимальный technical seed/demo-набор для проверки flow:
 
+- `Equal card actions` — CSS-only Flexbox drill with a provided HTML reference for bottom-aligned card actions.
 - `Responsive cards row` — responsive cards drill с готовым desktop-стартом.
 - `Header alignment` — flexbox header from scratch.
 - `Fix a layout overlap` — намеренно сломанный promo layout.
 - `Mini landing page sections` — multi-section sample для проверки `Page map`, `Full page` и legacy migration.
 
-Это examples, а не попытка собрать полноценный курс. Новые реальные задачи предполагается добавлять по одной после самостоятельного исследования источников.
+Это не попытка собрать полноценный курс. Новые реальные задачи предполагается добавлять по одной после самостоятельного исследования источников.
 
 ## Task data model
 

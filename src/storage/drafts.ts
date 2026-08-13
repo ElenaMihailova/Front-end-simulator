@@ -25,6 +25,32 @@ function isObject(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null;
 }
 
+function isSectionTabEditable(
+  section: Task['sections'][number],
+  tab: 'html' | 'css',
+) {
+  return section.editableTabs ? section.editableTabs.includes(tab) : true;
+}
+
+function normalizeDraftHtml(
+  section: Task['sections'][number],
+  draftObject: Record<string, unknown>,
+) {
+  if (typeof draftObject.html !== 'string') {
+    return section.starterHtml;
+  }
+
+  if (
+    draftObject.html === '' &&
+    section.starterHtml !== '' &&
+    !isSectionTabEditable(section, 'html')
+  ) {
+    return section.starterHtml;
+  }
+
+  return draftObject.html;
+}
+
 function normalizeSectionDrafts(
   task: Task,
   stored: unknown,
@@ -36,10 +62,7 @@ function normalizeSectionDrafts(
     const draftObject = isObject(storedDraft) ? storedDraft : {};
 
     drafts[section.id] = {
-      html:
-        typeof draftObject.html === 'string'
-          ? draftObject.html
-          : section.starterHtml,
+      html: normalizeDraftHtml(section, draftObject),
       css:
         typeof draftObject.css === 'string'
           ? draftObject.css
@@ -96,10 +119,7 @@ function mergeLegacySectionDrafts(
       }
 
       drafts[task.id][section.id] = {
-        html:
-          typeof legacyDraft.html === 'string'
-            ? legacyDraft.html
-            : drafts[task.id][section.id].html,
+        html: normalizeDraftHtml(section, legacyDraft),
         css:
           typeof legacyDraft.css === 'string'
             ? legacyDraft.css

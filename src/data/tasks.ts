@@ -3,13 +3,15 @@ import {
   Columns3,
   LayoutDashboard,
   LayoutTemplate,
+  PanelBottom,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { exercises } from './exercises';
+import type { EditorTab } from '../types';
 
 export type TaskType = 'build-from-scratch' | 'fix-layout' | 'responsive';
 
-export type TaskDifficulty = 'warm-up' | 'interview' | 'focused';
+export type TaskDifficulty = 'foundation' | 'warm-up' | 'interview' | 'focused';
 
 export type TaskSectionId = string;
 
@@ -20,6 +22,8 @@ export type TaskSection = {
   scope: string;
   starterHtml: string;
   starterCss: string;
+  editableTabs?: EditorTab[];
+  emptyPreview?: boolean;
 };
 
 export type Task = {
@@ -30,6 +34,9 @@ export type Task = {
   difficulty: TaskDifficulty;
   type: TaskType;
   icon: LucideIcon;
+  brief?: string[];
+  doneWhen?: string[];
+  interviewFollowUp?: string;
   sections: TaskSection[];
   supportsWholePage?: boolean;
   sourceUrl?: string;
@@ -41,6 +48,92 @@ export type Task = {
 };
 
 export const tasks: Task[] = [
+  {
+    id: 'equal-card-actions',
+    title: 'Equal card actions',
+    prompt:
+      'Three cards have descriptions of different lengths. Align their action buttons on the same bottom line.',
+    topic: 'Flexbox, nested layout, card component',
+    difficulty: 'foundation',
+    type: 'build-from-scratch',
+    icon: PanelBottom,
+    sourceUrl:
+      'https://developer.mozilla.org/en-US/docs/Web/CSS/How_to/Layout_cookbook/Card',
+    brief: [
+      'At 768px and wider: three cards in one row.',
+      'Equal card width and equal card height.',
+      'One action button per card, with buttons aligned on one horizontal line at the bottom despite descriptions of different lengths.',
+      'Visible gaps between cards.',
+      'Below 768px: one column.',
+      'Use the provided semantic HTML reference and write only the CSS.',
+      'Do not use absolute positioning or fixed heights to align buttons.',
+    ],
+    doneWhen: [
+      'Desktop layout is a three-card row.',
+      'Card bottoms are equal.',
+      'Action buttons are aligned.',
+      'Narrow screen stacks without horizontal scrolling.',
+      'Changing one description length does not break alignment.',
+    ],
+    interviewFollowUp:
+      'Explain how the alignment was achieved without fixed card height and why absolute positioning is avoided.',
+    sections: [
+      {
+        id: 'cards',
+        title: 'Cards',
+        eyebrow: 'css only',
+        scope:
+          'Style the provided travel cards so the actions align at the bottom.',
+        starterHtml: `<section class="cards" aria-labelledby="cards-title">
+  <h1 class="cards__title" id="cards-title">Weekend escapes</h1>
+  <ul class="cards__list" aria-label="Travel ideas">
+    <li class="cards__item">
+      <article class="card">
+        <img
+          class="card__image"
+          src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=900&q=80"
+          alt="Clear turquoise water and a sandy tropical beach"
+        />
+        <p class="card__meta">Coast / 2 nights</p>
+        <h2 class="card__title">Island reset</h2>
+        <p class="card__description">Slow mornings, a quiet shoreline and enough open space to fully switch off.</p>
+        <button class="card__action" type="button">Explore coast</button>
+      </article>
+    </li>
+    <li class="cards__item">
+      <article class="card">
+        <img
+          class="card__image"
+          src="https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=900&q=80"
+          alt="Mountain lake surrounded by peaks under a dramatic sky"
+        />
+        <p class="card__meta">Highlands / 3 nights</p>
+        <h2 class="card__title">Alpine cabin</h2>
+        <p class="card__description">A compact mountain break with lake walks, fresh air and a warm cabin base for evenings after long trails.</p>
+        <button class="card__action" type="button">View cabin</button>
+      </article>
+    </li>
+    <li class="cards__item">
+      <article class="card">
+        <img
+          class="card__image"
+          src="https://images.unsplash.com/photo-1516483638261-f4dbaf036963?auto=format&fit=crop&w=900&q=80"
+          alt="Colorful hillside village on the Italian coast"
+        />
+        <p class="card__meta">Village / 4 nights</p>
+        <h2 class="card__title">Coastal town</h2>
+        <p class="card__description">A longer stay for cafe hopping, small galleries, harbor views, late dinners and unplanned side streets worth following.</p>
+        <button class="card__action" type="button">Plan visit</button>
+      </article>
+    </li>
+  </ul>
+</section>`,
+        starterCss: '',
+        editableTabs: ['css'],
+        emptyPreview: true,
+      },
+    ],
+  },
   {
     id: 'responsive-cards-row',
     title: 'Responsive cards row',

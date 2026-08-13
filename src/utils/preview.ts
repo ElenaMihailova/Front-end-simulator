@@ -5,7 +5,7 @@ const baseStyles = `
   :root {
     color-scheme: light;
     font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    background: #eef2f6;
+    background: #ffffff;
   }
 
   * {
@@ -15,7 +15,8 @@ const baseStyles = `
   body {
     min-width: 320px;
     margin: 0;
-    background: #eef2f6;
+    padding: 10px;
+    background: #ffffff;
     color: #182230;
   }
 
@@ -31,6 +32,10 @@ const baseStyles = `
     margin: 0 auto;
     background: #ffffff;
     box-shadow: 0 24px 70px rgba(23, 32, 51, 0.12);
+  }
+
+  .preview-page:empty {
+    min-height: 320px;
   }
 
   .placeholder {
@@ -65,7 +70,12 @@ export function createPreviewDocument(
   const html = sections
     .map((section) => {
       const value = drafts[section.id].html.trim();
-      return value || `<section class="placeholder">${section.title}</section>`;
+      return (
+        value ||
+        (section.emptyPreview
+          ? ''
+          : `<section class="placeholder">${section.title}</section>`)
+      );
     })
     .join('\n');
 
@@ -81,7 +91,9 @@ export function createFocusDocument(
 ) {
   const html =
     draft.html.trim() ||
-    `<section class="placeholder">${section.title}</section>`;
+    (section.emptyPreview
+      ? ''
+      : `<section class="placeholder">${section.title}</section>`);
   return createDocument(
     `${baseStyles}\n${draft.css}`,
     `<main class="preview-page">${html}</main>`,

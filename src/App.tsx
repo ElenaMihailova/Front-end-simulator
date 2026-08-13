@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { ArrowLeft, Save } from 'lucide-react';
+import { ArrowLeft, RotateCcw, Save } from 'lucide-react';
 import { ChallengeCatalog } from './components/ChallengeCatalog';
 import { ExerciseWorkspace } from './components/ExerciseWorkspace';
 import { ModeBar } from './components/ModeBar';
@@ -120,12 +120,6 @@ export function App() {
   return (
     <div className={styles.simulator}>
       <header className={styles['simulator__header']}>
-        <div>
-          <p className={styles['simulator__eyebrow']}>HTML/CSS practice</p>
-          <h1 className={styles['simulator__title']}>
-            Frontend page simulator
-          </h1>
-        </div>
         <div className={styles['simulator__header-actions']}>
           <button
             className={styles['simulator__back']}
@@ -139,6 +133,14 @@ export function App() {
             <Save aria-hidden="true" size={16} />
             {saveStatus}
           </div>
+          <button
+            className={styles['simulator__reset']}
+            type="button"
+            onClick={resetSelected}
+          >
+            <RotateCcw aria-hidden="true" size={16} />
+            Reset block
+          </button>
         </div>
       </header>
 
@@ -156,12 +158,12 @@ export function App() {
         )}
 
         <div className={styles['simulator__work-area']}>
-          <ModeBar
-            workspaceView={workspaceView}
-            showWholePage={showWholePage}
-            onWorkspaceViewChange={setWorkspaceView}
-            onReset={resetSelected}
-          />
+          {showWholePage && (
+            <ModeBar
+              workspaceView={workspaceView}
+              onWorkspaceViewChange={setWorkspaceView}
+            />
+          )}
 
           {workspaceView === 'wholePage' && showWholePage ? (
             <section

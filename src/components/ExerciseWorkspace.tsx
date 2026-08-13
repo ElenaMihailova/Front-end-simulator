@@ -1,8 +1,15 @@
 import Editor from '@monaco-editor/react';
+import type { editor } from 'monaco-editor';
 import { Code2, Eye, FileCode2 } from 'lucide-react';
 import type { Task, TaskSection } from '../data/tasks';
 import type { EditorTab, ExerciseDraft } from '../types';
 import { PreviewFrame } from './PreviewFrame';
+import {
+  getEditorModelPath,
+  isCssOnlySection,
+  isSectionTabEditable,
+} from '../utils/editorConfig';
+import { getHtmlAutoCloseTagEdit } from '../utils/htmlAutoClose';
 import styles from '../App.module.css';
 
 type ExerciseWorkspaceProps = {
@@ -24,84 +31,145 @@ export function ExerciseWorkspace({
   onDraftChange,
   onEditorTabChange,
 }: ExerciseWorkspaceProps) {
+  const isCurrentEditorReadOnly = !isSectionTabEditable(section, editorTab);
+  const usesCssOnlyLayout = isCssOnlySection(section);
+  const hasDetailedBrief =
+    task.brief?.length ||
+    task.doneWhen?.length ||
+    task.interviewFollowUp ||
+    section.scope;
+
   return (
     <section
       className={styles['simulator__exercise']}
       aria-label="Focused exercise"
     >
       <div className={styles['simulator__exercise-header']}>
-        <div>
-          <p className={styles['simulator__exercise-eyebrow']}>
-            {task.topic} / {task.type}
-          </p>
+        <div className={styles['simulator__exercise-summary']}>
+          <p className={styles['simulator__exercise-eyebrow']}>{task.type}</p>
           <h2 className={styles['simulator__exercise-title']}>{task.title}</h2>
           <span className={styles['simulator__exercise-scope']}>
             {task.prompt}
           </span>
-          <span className={styles['simulator__exercise-brief']}>
-            {section.scope}
-          </span>
+          {hasDetailedBrief && (
+            <details className={styles['simulator__brief-details']}>
+              <summary className={styles['simulator__brief-summary']}>
+                View full brief
+              </summary>
+              <div className={styles['simulator__brief-content']}>
+                {section.scope && (
+                  <div className={styles['simulator__brief-block']}>
+                    <h3 className={styles['simulator__brief-title']}>Scope</h3>
+                    <p className={styles['simulator__brief-text']}>
+                      {section.scope}
+                    </p>
+                  </div>
+                )}
+                {task.brief && (
+                  <div className={styles['simulator__brief-block']}>
+                    <h3 className={styles['simulator__brief-title']}>Brief</h3>
+                    <ol className={styles['simulator__brief-list']}>
+                      {task.brief.map((item) => (
+                        <li key={item}>{item}</li>
+                      ))}
+                    </ol>
+                  </div>
+                )}
+                {task.doneWhen && (
+                  <div className={styles['simulator__brief-block']}>
+                    <h3 className={styles['simulator__brief-title']}>
+                      Done when
+                    </h3>
+                    <ul className={styles['simulator__brief-list']}>
+                      {task.doneWhen.map((item) => (
+                        <li key={item}>{item}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                {task.interviewFollowUp && (
+                  <p className={styles['simulator__interview-follow-up']}>
+                    <strong>Interview follow-up:</strong>{' '}
+                    {task.interviewFollowUp}
+                  </p>
+                )}
+              </div>
+            </details>
+          )}
         </div>
       </div>
 
-      <div className={styles['simulator__exercise-grid']}>
-        <div className={styles['simulator__editor']}>
-          <div className={styles['simulator__editor-toolbar']}>
-            <div
-              className={styles['simulator__editor-tabs']}
-              role="group"
-              aria-label="Code editor"
-            >
-              <button
-                aria-pressed={editorTab === 'html'}
-                className={
-                  editorTab === 'html'
-                    ? styles['simulator__editor-tab--selected']
-                    : ''
-                }
-                onClick={() => onEditorTabChange('html')}
-                type="button"
-              >
-                <FileCode2 aria-hidden="true" size={16} />
-                HTML
-              </button>
-              <button
-                aria-pressed={editorTab === 'css'}
-                className={
-                  editorTab === 'css'
-                    ? styles['simulator__editor-tab--selected']
-                    : ''
-                }
-                onClick={() => onEditorTabChange('css')}
-                type="button"
-              >
-                <Code2 aria-hidden="true" size={16} />
-                CSS
-              </button>
-            </div>
-          </div>
-
-          <Editor
-            className={styles['simulator__code-editor']}
-            height="100%"
-            language={editorTab}
-            onChange={(value) => onDraftChange(editorTab, value)}
-            options={{
-              automaticLayout: true,
-              fontFamily:
-                'JetBrains Mono, SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace',
-              fontSize: 14,
-              lineHeight: 22,
-              minimap: { enabled: false },
-              padding: { top: 18 },
-              scrollBeyondLastLine: false,
-              tabSize: 2,
-              wordWrap: 'on',
-            }}
-            theme="vs-dark"
-            value={draft[editorTab]}
+      <div
+        className={`${styles['simulator__exercise-grid']} ${
+          usesCssOnlyLayout ? styles['simulator__exercise-grid--css-only'] : ''
+        }`}
+      >
+        {usesCssOnlyLayout ? (
+          <CssOnlyEditor
+            draft={draft}
+            section={section}
+            task={task}
+            onDraftChange={onDraftChange}
           />
-        </div>
+        ) : (
+          <div className={styles['simulator__editor']}>
+            <div className={styles['simulator__editor-toolbar']}>
+              <div
+                className={styles['simulator__editor-tabs']}
+                role="group"
+                aria-label="Code editor"
+              >
+                <button
+                  aria-pressed={editorTab === 'html'}
+                  className={
+                    editorTab === 'html'
+                      ? styles['simulator__editor-tab--selected']
+                      : ''
+                  }
+                  onClick={() => onEditorTabChange('html')}
+                  type="button"
+                >
+                  <FileCode2 aria-hidden="true" size={16} />
+                  HTML
+                </button>
+                <button
+                  aria-pressed={editorTab === 'css'}
+                  className={
+                    editorTab === 'css'
+                      ? styles['simulator__editor-tab--selected']
+                      : ''
+                  }
+                  onClick={() => onEditorTabChange('css')}
+                  type="button"
+                >
+                  <Code2 aria-hidden="true" size={16} />
+                  CSS
+                </button>
+              </div>
+            </div>
+
+            <Editor
+              className={styles['simulator__code-editor']}
+              height="100%"
+              language={editorTab}
+              path={getEditorModelPath(task.id, section.id, editorTab)}
+              onMount={setupHtmlAutoCloseTags}
+              onChange={(value) => {
+                if (!isCurrentEditorReadOnly) {
+                  onDraftChange(editorTab, value);
+                }
+              }}
+              options={createEditorOptions(
+                editorTab === 'html'
+                  ? `${task.title} HTML editor`
+                  : `${task.title} CSS editor`,
+                isCurrentEditorReadOnly,
+              )}
+              theme="vs-dark"
+              value={draft[editorTab]}
+            />
+          </div>
+        )}
 
         <div className={styles['simulator__preview']}>
           <div className={styles['simulator__preview-toolbar']}>
@@ -117,4 +185,164 @@ export function ExerciseWorkspace({
       </div>
     </section>
   );
+}
+
+type CssOnlyEditorProps = {
+  draft: ExerciseDraft;
+  section: TaskSection;
+  task: Task;
+  onDraftChange: (field: EditorTab, value?: string) => void;
+};
+
+function CssOnlyEditor({
+  draft,
+  section,
+  task,
+  onDraftChange,
+}: CssOnlyEditorProps) {
+  return (
+    <>
+      <details className={styles['simulator__reference-pane']} open>
+        <summary className={styles['simulator__reference-summary']}>
+          <FileCode2 aria-hidden="true" size={15} />
+          HTML reference
+        </summary>
+        <Editor
+          className={styles['simulator__reference-editor']}
+          height="100%"
+          language="html"
+          path={getEditorModelPath(task.id, section.id, 'html')}
+          options={createEditorOptions(
+            `${task.title} HTML reference`,
+            true,
+            'compact',
+          )}
+          theme="vs-dark"
+          value={draft.html}
+        />
+      </details>
+
+      <div className={styles['simulator__css-editor-pane']}>
+        <div className={styles['simulator__pane-toolbar']}>
+          <Code2 aria-hidden="true" size={15} />
+          <span>CSS</span>
+        </div>
+        <Editor
+          className={styles['simulator__code-editor']}
+          height="100%"
+          language="css"
+          path={getEditorModelPath(task.id, section.id, 'css')}
+          onChange={(value) => onDraftChange('css', value)}
+          options={createEditorOptions(`${task.title} CSS editor`, false)}
+          theme="vs-dark"
+          value={draft.css}
+        />
+      </div>
+    </>
+  );
+}
+
+function createEditorOptions(
+  ariaLabel: string,
+  readOnly: boolean,
+  density: 'regular' | 'compact' = 'regular',
+): editor.IStandaloneEditorConstructionOptions {
+  return {
+    ariaLabel,
+    autoClosingBrackets: 'languageDefined',
+    autoClosingDelete: 'auto',
+    autoClosingOvertype: 'auto',
+    autoClosingQuotes: 'languageDefined',
+    autoIndent: 'full',
+    autoSurround: 'languageDefined',
+    automaticLayout: true,
+    bracketPairColorization: { enabled: true },
+    fontFamily:
+      'JetBrains Mono, SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace',
+    fontSize: density === 'compact' ? 12 : 14,
+    folding: false,
+    formatOnPaste: !readOnly,
+    formatOnType: false,
+    guides: {
+      bracketPairs: 'active',
+      indentation: true,
+    },
+    linkedEditing: true,
+    lineDecorationsWidth: 6,
+    lineNumbersMinChars: 2,
+    lineHeight: density === 'compact' ? 18 : 22,
+    matchBrackets: 'always',
+    minimap: { enabled: false },
+    padding: { top: density === 'compact' ? 12 : 18 },
+    quickSuggestions: {
+      comments: false,
+      other: true,
+      strings: true,
+    },
+    quickSuggestionsDelay: 80,
+    readOnly,
+    scrollBeyondLastLine: false,
+    scrollbar: {
+      arrowSize: 0,
+      horizontalScrollbarSize: 8,
+      verticalScrollbarSize: 8,
+      useShadows: false,
+    },
+    snippetSuggestions: 'inline',
+    suggestOnTriggerCharacters: true,
+    tabCompletion: 'onlySnippets',
+    tabSize: 2,
+    wordWrap: 'on',
+  };
+}
+
+function setupHtmlAutoCloseTags(editorInstance: editor.IStandaloneCodeEditor) {
+  let applyingAutoClose = false;
+
+  const contentListener = editorInstance.onDidChangeModelContent((event) => {
+    if (applyingAutoClose) {
+      return;
+    }
+
+    const model = editorInstance.getModel();
+    const position = editorInstance.getPosition();
+    const change = event.changes[0];
+
+    if (
+      !model ||
+      !position ||
+      model.getLanguageId() !== 'html' ||
+      event.changes.length !== 1 ||
+      change.text !== '>'
+    ) {
+      return;
+    }
+
+    const cursorOffset = model.getOffsetAt(position);
+    const edit = getHtmlAutoCloseTagEdit(model.getValue(), cursorOffset);
+
+    if (!edit) {
+      return;
+    }
+
+    try {
+      applyingAutoClose = true;
+      editorInstance.executeEdits('html-auto-close-tag', [
+        {
+          range: {
+            startLineNumber: position.lineNumber,
+            startColumn: position.column,
+            endLineNumber: position.lineNumber,
+            endColumn: position.column,
+          },
+          text: edit.text,
+        },
+      ]);
+      editorInstance.setPosition(model.getPositionAt(edit.cursorOffset));
+    } finally {
+      applyingAutoClose = false;
+    }
+  });
+
+  editorInstance.onDidDispose(() => contentListener.dispose());
 }

@@ -44,6 +44,50 @@ describe('loadDraftsWithMigration', () => {
     );
   });
 
+  it('uses the canonical starter HTML when a CSS-only task has an empty stored HTML draft', () => {
+    const storage = new MemoryStorage();
+    storage.setItem(
+      currentStorageKey,
+      JSON.stringify({
+        'equal-card-actions': {
+          cards: { html: '', css: '.cards {}' },
+        },
+      }),
+    );
+
+    const drafts = loadDraftsWithMigration(storage, tasks);
+
+    expect(drafts['equal-card-actions'].cards.html).toContain(
+      'Weekend escapes',
+    );
+    expect(drafts['equal-card-actions'].cards.html).toContain(
+      'class="card__action"',
+    );
+    expect(drafts['equal-card-actions'].cards.css).toBe('.cards {}');
+  });
+
+  it('preserves nonempty user HTML drafts for CSS-only tasks', () => {
+    const storage = new MemoryStorage();
+    storage.setItem(
+      currentStorageKey,
+      JSON.stringify({
+        'equal-card-actions': {
+          cards: {
+            html: '<section class="custom">User HTML</section>',
+            css: '.custom {}',
+          },
+        },
+      }),
+    );
+
+    const drafts = loadDraftsWithMigration(storage, tasks);
+
+    expect(drafts['equal-card-actions'].cards.html).toBe(
+      '<section class="custom">User HTML</section>',
+    );
+    expect(drafts['equal-card-actions'].cards.css).toBe('.custom {}');
+  });
+
   it('does not overwrite current drafts when legacy data also exists', () => {
     const storage = new MemoryStorage();
     storage.setItem(
